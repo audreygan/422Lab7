@@ -1,10 +1,6 @@
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
 static Scanner kb;	// scanner connected to keyboard input, or input file
@@ -13,7 +9,15 @@ static Scanner kb;	// scanner connected to keyboard input, or input file
         ArrayList<String> input;                         //array list that holds the input command
         input = parse(kb);
         while(input.size() != 0) {
-            input = parse(kb);  //run the program until
+            input = parse(kb);  //run the program until quit is entered
+            int phraseLen = Integer.valueOf(input.get(input.size()-1));
+            for(int i = 0; i<input.size()-3; i++){
+                File thisFile = new File(input.get(input.size()-2) + input.get(i));   //the actual test doc to compare against all others
+                for(int j = i+1; j<input.size()-1; j++){
+                    File otherFile = new File(input.get(input.size()-2) + input.get(j));    //file to be compared against
+                    
+                }
+            }
         }
     }
 
@@ -41,19 +45,18 @@ static Scanner kb;	// scanner connected to keyboard input, or input file
         String filePath = command[0];
         try{
             int second = Integer.valueOf(command[1]);
-        }catch(NumberFormatException e){    //makes sure that the phrase length is an integer
-            System.out.println("Invalid input: Phrase length parameter incorrect.");
-        }
-        try{
             File folder = new File(filePath);
             String[] srcFiles = folder.list();  //get the list of input files
             for(int i = 0; i<srcFiles.length; i++){
-                System.out.println(srcFiles[i]);
+                input.add(srcFiles[i]); //get the list of input files
             }
+        }catch(NumberFormatException e){    //makes sure that the phrase length is an integer
+            System.out.println("Invalid input: Phrase length parameter incorrect.");
         }catch( NullPointerException e) {   //makes sure that the file path is valid
             System.out.println("Invalid input: Incorrect file path.");
         }
-        input.add(command[0]);  //valid input so make sure input array isn't empty
+        input.add(command[0]);  //add the filepath in input so you can access the other files
+        input.add(command[1]);  //add the phrase length in input so you can access it later
         return input;
     }
 }
