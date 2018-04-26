@@ -1,4 +1,4 @@
-import java.io.File;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -14,8 +14,48 @@ static Scanner kb;	// scanner connected to keyboard input, or input file
             for(int i = 0; i<input.size()-3; i++){
                 File thisFile = new File(input.get(input.size()-2) + input.get(i));   //the actual test doc to compare against all others
                 for(int j = i+1; j<input.size()-1; j++){
+                    int counter = 0; int maxMatches = 0;
                     File otherFile = new File(input.get(input.size()-2) + input.get(j));    //file to be compared against
-                    
+                    int k = 0; int w = 0;
+                    String words1[]; String words2[];
+                    String line1; String line2;
+                    HashMap<String, String> hm = new HashMap<>();
+                    ArrayList<ArrayList<String>> commonPhrases = new ArrayList<>();
+                    ArrayList<String> phrases = new ArrayList<>();
+                    try {
+                        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(thisFile), "UTF-8"));
+                        line1 = br.readLine();
+                        BufferedReader br2 = new BufferedReader(new InputStreamReader(new FileInputStream(otherFile), "UTF-8"));
+                        line2 = br2.readLine();
+
+                        while((line1 != null)){ //while you haven't reached the end of first file
+                            words1 = line1.split("\\s");    //get the words for each line in file 1
+                            words2 = line2.split("\\s");    //get the words for each line in file 2
+                            if(words1[k].equals(words2[w])){    //encountered the same word
+                                phrases.add(words1[k]);
+                                counter++;
+                                k++;
+                                w++;
+                            }else{  //end of phrase match, add to list of common phrases between this file and other file
+                                if(counter >= phraseLen){   //makes sure added phrases are of at least the required phrase length
+                                    commonPhrases.add(phrases);
+                                }
+                                phrases.clear();
+                                counter = 0; w++;
+                            }
+//                            if (hm.containsKey(words1[0])){
+//                                System.out.println("Found duplicate ... handle logic");
+//                            }
+//                            hm.put(words1[0],words1[1]); //if index==0 is ur key
+                            line1 = br.readLine();
+                            line2 = br.readLine();
+                        }
+
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
