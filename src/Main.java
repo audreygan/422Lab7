@@ -19,37 +19,51 @@ static Scanner kb;	// scanner connected to keyboard input, or input file
                 }
                 int phraseLen = Integer.valueOf(input.get(input.size()-1));
                 for(int i = 0; i<input.size()-3; i++) {//goes until the second to last file
+                    HashMap<String, ArrayList<ArrayList<String>>> hm = new HashMap<>();
+                    ArrayList<ArrayList<String>> phrases = new ArrayList<>();
                     File thisFile = new File(rightFilePath + input.get(i));   //the actual test doc to compare against all others
                     String line1;
 //                    System.out.println(input.get(i)); //*********DEBUG STATEMENT making sure all files are being accessed*********
                     try{
                         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(thisFile), "UTF-8"));
-                        line1 = br.readLine();
-                        while (line1 != null) {
-                            if (line1.equals("")) { //if the file has an empty line skip it
-                                line1 = br.readLine();
-                                if(line1 == null){
-                                    break;
+                        Scanner s = new Scanner(br);
+                        while (s.hasNext()) {
+                            int counter = 0;
+                            ArrayList<String> stringEntry = new ArrayList<>();
+                            while((counter < phraseLen) && (s.hasNext())){
+                                stringEntry.add(s.next().replaceAll("[^\\w\\s\\ ]", "").toLowerCase());
+                                if(counter == 0){
+                                    //need to figure out how to go get the phrases while only moving one word (phrases should be 1-5, 2-6, 3-7, etc)
+                                    //not 1-5, 6-10, etc
                                 }
+                                counter++;
                             }
-                            line1 = line1.replaceAll("[^\\w\\s\\ ]", "").toLowerCase();
-//                            System.out.println(line1); //DEBUG STATEMENT to see what's in the file
-                            line1 = br.readLine();
+                            phrases.add(stringEntry);
+                            hm.put(input.get(i),phrases);
                         }
+//                        line1 = br.readLine();
+//                        while (line1 != null) {
+//                            if (line1.equals("")) { //if the file has an empty line skip it
+//                                line1 = br.readLine();
+//                                if(line1 == null){
+//                                    break;
+//                                }
+//                            }
+//                            line1 = line1.replaceAll("[^\\w\\s\\ ]", "").toLowerCase();
+////                            System.out.println(line1); //DEBUG STATEMENT to see what's in the file
+//                            line1 = br.readLine();
+//                        }
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     for (int j = i + 1; j < input.size() - 2; j++) {//goes until the last file
-                        int counter = 0;
                         File otherFile = new File(rightFilePath + input.get(j));    //file to be compared against
                         int k = 0; int w = 0;
                         String words1[]; String words2[];
                         String line2;
-                        HashMap<String, String> hm = new HashMap<>();
                         ArrayList<ArrayList<String>> commonPhrases = new ArrayList<>();
-                        ArrayList<String> phrases = new ArrayList<>();
 //                        try {
 //                            BufferedReader br2 = new BufferedReader(new InputStreamReader(new FileInputStream(otherFile), "UTF-8"));
 //                            line2 = br2.readLine();
