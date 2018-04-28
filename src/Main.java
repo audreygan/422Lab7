@@ -5,6 +5,7 @@ import java.util.*;
 public class Main {
     static Scanner kb;	// scanner connected to keyboard input, or input file
     public static int minMatches;
+
     public static void main(String[] args) {
         kb = new Scanner(System.in); // use keyboard and console
         ArrayList<String> input;                         //array list that holds the input command
@@ -26,7 +27,7 @@ public class Main {
                     File thisFile = new File(rightFilePath + input.get(i));   //the actual test doc to compare against all others
 //                    String line1;
 //                    System.out.println(input.get(i)); //*********DEBUG STATEMENT making sure all files are being accessed*********
-                    try{
+                    try {
                         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(thisFile), "UTF-8"));
                         Scanner s = new Scanner(br);    //make a scanner that uses the buffered reader to read the file
                         while (s.hasNext()) {
@@ -46,24 +47,14 @@ public class Main {
                             }
                             hm.put(input.get(i), phrases);  //add string arrays to hash map
                         }
-//                        line1 = br.readLine();
-//                        while (line1 != null) {
-//                            if (line1.equals("")) { //if the file has an empty line skip it
-//                                line1 = br.readLine();
-//                                if(line1 == null){
-//                                    break;
-//                                }
-//                            }
-//                            line1 = line1.replaceAll("[^\\w\\s\\ ]", "").toLowerCase();
-////                            System.out.println(line1); //DEBUG STATEMENT to see what's in the file
-//                            line1 = br.readLine();
-//                        }
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+
                 }
+
             }
             input = parse(kb);  //run the program until quit is entered
         }
@@ -115,4 +106,36 @@ public class Main {
         }
         return input;
     }
+
+    private static HashMap<String, Integer> getSimilarities(HashMap<String, ArrayList<ArrayList<String>>> data) {
+        HashMap<String, Integer> similarities = new HashMap<>();
+        for (Map.Entry<String, ArrayList<ArrayList<String>>> entry1 : data.entrySet()) {     // Traverse every file in the map
+            int entryHash1 = System.identityHashCode(entry1.getKey());
+            for (Map.Entry<String, ArrayList<ArrayList<String>>> entry2 : data.entrySet()) { // Compare against every other file
+                int entryHash2 = System.identityHashCode(entry2.getKey());
+                if (entryHash2 > entryHash1) continue;
+                int count = 0;
+                for (int i = 0; i < entry1.getValue().size(); i++) {                         // Traverse the number of phrases
+                    for (int j = 0; j < entry2.getValue().size(); j++) {                     // Compare against the phrases in the other file
+                        boolean equal = true;
+                        for (int k = 0; k < entry1.getValue().get(i).size(); k++) {          // Compare the words -- I'm not sure if this is necessary but just to be safe I'm comparing each word
+                            if (!entry1.getValue().get(i).get(k).equals(entry2.getValue().get(j).get(k)))
+                                equal = false;
+                        }
+                        if (equal)
+                            count++;
+                    }
+                }
+                similarities.put(entry1.getKey() + "_" + entry2.getKey(), count);
+            }
+        }
+        return similarities;
+    }
+
+//    private static void displaySimilarities(HashMap<String, Integer> similarities) {
+//        for (Map.Entry<String, Integer> entry1 : similarities.entrySet()) {
+//            if (entry1.getValue() > )
+//        }
+//    }
+
 }
