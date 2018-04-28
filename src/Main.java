@@ -131,7 +131,7 @@ public class Main {
                             count++;
                     }
                 }
-                similarities.put(entry1.getKey() + "_" + entry2.getKey(), count);
+                similarities.put(entry1.getKey() + ", " + entry2.getKey(), count);
             }
         }
         return similarities;
@@ -142,8 +142,12 @@ public class Main {
      * @param similarities is the hashmap with the similarities between each pair of files
      */
     private static void displaySimilarities(HashMap<String, Integer> similarities) {
+        // Sort in reverse order (highest value to lowest value)
+        // for each entry
+        //      if the current value is greater than the minimum required
+        //          make a new line and print the value then the key
         for (Map.Entry<String, Integer> entry1 : similarities.entrySet()) {
-            //if (entry1.getValue() > )
+            
         }
     }
 
