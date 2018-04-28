@@ -18,28 +18,31 @@ static Scanner kb;	// scanner connected to keyboard input, or input file
                     input.add(input.size()-1, rightFilePath);
                 }
                 int phraseLen = Integer.valueOf(input.get(input.size()-1));
+                HashMap<String, ArrayList<ArrayList<String>>> hm = new HashMap<>();
                 for(int i = 0; i<input.size()-3; i++) {//goes until the second to last file
-                    HashMap<String, ArrayList<ArrayList<String>>> hm = new HashMap<>();
                     ArrayList<ArrayList<String>> phrases = new ArrayList<>();
                     File thisFile = new File(rightFilePath + input.get(i));   //the actual test doc to compare against all others
                     String line1;
 //                    System.out.println(input.get(i)); //*********DEBUG STATEMENT making sure all files are being accessed*********
                     try{
                         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(thisFile), "UTF-8"));
-                        Scanner s = new Scanner(br);
+                        Scanner s = new Scanner(br);    //make a scanner that uses the buffered reader to read the file
                         while (s.hasNext()) {
                             int counter = 0;
                             ArrayList<String> stringEntry = new ArrayList<>();
                             while((counter < phraseLen) && (s.hasNext())){
-                                stringEntry.add(s.next().replaceAll("[^\\w\\s\\ ]", "").toLowerCase());
-                                if(counter == 0){
-                                    //need to figure out how to go get the phrases while only moving one word (phrases should be 1-5, 2-6, 3-7, etc)
-                                    //not 1-5, 6-10, etc
-                                }
+                                stringEntry.add(s.next().replaceAll("[^\\w\\s\\ ]", "").toLowerCase()); //get the first phrase in the doc
                                 counter++;
                             }
-                            phrases.add(stringEntry);
-                            hm.put(input.get(i),phrases);
+                            if((counter != phraseLen) && (s.hasNext())){
+                                ArrayList<String> newPhrase = new ArrayList<>(phrases.get(phrases.size()-1));     //for all other phrases, get the last phrase
+                                newPhrase.remove(0);                                                        //remove the first word
+                                newPhrase.add(s.next().replaceAll("[^\\w\\s\\ ]", "").toLowerCase());//add the next word
+                                phrases.add(newPhrase);                                                             //add the phrase to the 2d string array
+                            }else {
+                                phrases.add(stringEntry);   //add first phrase to the string array
+                            }
+                            hm.put(input.get(i), phrases);  //add string arrays to hash map
                         }
 //                        line1 = br.readLine();
 //                        while (line1 != null) {
