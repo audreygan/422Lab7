@@ -3,7 +3,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class Main {
-static Scanner kb;	// scanner connected to keyboard input, or input file
+    static Scanner kb;	// scanner connected to keyboard input, or input file
+    public static int minMatches;
     public static void main(String[] args) {
         kb = new Scanner(System.in); // use keyboard and console
         ArrayList<String> input;                         //array list that holds the input command
@@ -18,6 +19,7 @@ static Scanner kb;	// scanner connected to keyboard input, or input file
                     input.add(input.size()-2, rightFilePath);
                 }
                 int phraseLen = Integer.valueOf(input.get(input.size()-2));
+                minMatches = Integer.valueOf(input.get(input.size()-1));
                 HashMap<String, ArrayList<ArrayList<String>>> hm = new HashMap<>();
                 for(int i = 0; i<input.size()-3; i++) {//goes until the last file
                     ArrayList<ArrayList<String>> phrases = new ArrayList<>();
