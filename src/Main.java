@@ -30,11 +30,11 @@ static Scanner kb;	// scanner connected to keyboard input, or input file
                         while (s.hasNext()) {
                             int counter = 0;
                             ArrayList<String> stringEntry = new ArrayList<>();
-                            while((counter < phraseLen) && (s.hasNext())){
+                            while((counter < phraseLen) && (s.hasNext()) && (hm.size() == 0)){
                                 stringEntry.add(s.next().replaceAll("[^\\w\\s\\ ]", "").toLowerCase()); //get the first phrase in the doc
                                 counter++;
                             }
-                            if((counter != phraseLen) && (s.hasNext())){
+                            if((hm.size()>0) && (s.hasNext())){
                                 ArrayList<String> newPhrase = new ArrayList<>(phrases.get(phrases.size()-1));     //for all other phrases, get the last phrase
                                 newPhrase.remove(0);                                                        //remove the first word
                                 newPhrase.add(s.next().replaceAll("[^\\w\\s\\ ]", "").toLowerCase());//add the next word
