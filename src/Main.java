@@ -54,7 +54,7 @@ public class Main {
                     }
 
                 }
-
+                displaySimilarities(getSimilarities(hm));
             }
             input = parse(kb);  //run the program until quit is entered
         }
@@ -132,10 +132,10 @@ public class Main {
         return similarities;
     }
 
-//    private static void displaySimilarities(HashMap<String, Integer> similarities) {
-//        for (Map.Entry<String, Integer> entry1 : similarities.entrySet()) {
-//            if (entry1.getValue() > )
-//        }
-//    }
+    private static void displaySimilarities(HashMap<String, Integer> similarities) {
+        for (Map.Entry<String, Integer> entry1 : similarities.entrySet()) {
+            //if (entry1.getValue() > )
+        }
+    }
 
 }
