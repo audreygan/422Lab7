@@ -107,6 +107,11 @@ public class Main {
         return input;
     }
 
+    /**
+     * This method compares the data within the given hashmap and returns a new hashmap with the similarities between files
+     * @param data is the hashmap with the data of all the phrases in each file
+     * @return a new hashmap with the number of similarities between the different files
+     */
     private static HashMap<String, Integer> getSimilarities(HashMap<String, ArrayList<ArrayList<String>>> data) {
         HashMap<String, Integer> similarities = new HashMap<>();
         for (Map.Entry<String, ArrayList<ArrayList<String>>> entry1 : data.entrySet()) {     // Traverse every file in the map
@@ -132,6 +137,10 @@ public class Main {
         return similarities;
     }
 
+    /**
+     * This method prints the similarities
+     * @param similarities is the hashmap with the similarities between each pair of files
+     */
     private static void displaySimilarities(HashMap<String, Integer> similarities) {
         for (Map.Entry<String, Integer> entry1 : similarities.entrySet()) {
             //if (entry1.getValue() > )
