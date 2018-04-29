@@ -113,6 +113,20 @@ public class Main {
      */
     private static HashMap<String, Integer> getSimilarities(HashMap<String, ArrayList<ArrayList<String>>> data) {
         HashMap<String, Integer> similarities = new HashMap<>();
+//        Set<String> keys = data.keySet();
+//        String[] keyArr = keys.toArray(new String[keys.size()]);
+//        for (int i = 0; i < keyArr.length; i++) {
+//            for (int j = i + 1; j < keyArr.length; j++) {
+//                int count = 0;
+//                for (int k = 0; k < data.get(keyArr[i]).size(); k++) {
+//                    for (int l = 0; l < data.get(keyArr[j]).size(); l++) {
+//                        if (data.get(keyArr[i]).get(k).equals(data.get(keyArr[j]).get(l)))
+//                            count++;
+//                    }
+//                }
+//                similarities.put(keyArr[i] + ", " + keyArr[j], count);
+//            }
+//        }
         int set1Count = 0;
         for (Map.Entry<String, ArrayList<ArrayList<String>>> entry1 : data.entrySet()) {     // Traverse every file in the map
             int set2Count = 0;
