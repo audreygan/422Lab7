@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Main {
     private static Scanner kb;	// scanner connected to keyboard input, or input file
     private static int minMatches;
-
+    private static int set1Count = 0;
     public static void main(String[] args) {
         kb = new Scanner(System.in);                                                    // use keyboard and console
         ArrayList<String> input;                                                        //array list that holds the input command
@@ -54,6 +54,20 @@ public class Main {
                     }
 
                 }
+//                ConcurrentHashMap<String, Integer> simMap = new ConcurrentHashMap<>();
+//                final Object lock = new Object();
+//                ArrayList<Thread> threads = new ArrayList<>();
+//                for (int i = 0; i < threads.size(); i++) {
+//                    Thread t = new Thread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                                 simMap = getSimilarities(hm);  // Display the number of similarities after the comparison is completed
+//
+//                        }
+//                    });
+//                    threads.add(t);
+//                    t.start();
+//                }
                 displaySimilarities(getSimilarities(hm));       // Display the number of similarities after the comparison is completed
             }
             input = parse(kb);  //run the program until quit is entered
@@ -114,46 +128,28 @@ public class Main {
      */
     private static ConcurrentHashMap<String, Integer> getSimilarities(HashMap<String, ArrayList<ArrayList<String>>> data) {
         ConcurrentHashMap<String, Integer> similarities = new ConcurrentHashMap<>();
-        Thread[] threads = new Thread[data.size()];
-        for (int i = 0; i < threads.length; i++) {
-            Thread t = new Thread() {
-                public void run() {
-
-                }
-            };
-            threads[i] = t;
-            t.start();
-        }
-//        Set<String> keys = data.keySet();
-//        String[] keyArr = keys.toArray(new String[keys.size()]);
-//        for (int i = 0; i < keyArr.length; i++) {
-//            for (int j = i + 1; j < keyArr.length; j++) {
-//                int count = 0;
-//                for (int k = 0; k < data.get(keyArr[i]).size(); k++) {
-//                    for (int l = 0; l < data.get(keyArr[j]).size(); l++) {
-//                        if (data.get(keyArr[i]).get(k).equals(data.get(keyArr[j]).get(l)))
-//                            count++;
-//                    }
-//                }
-//                similarities.put(keyArr[i] + ", " + keyArr[j], count);
-//            }
-//        }
-        int set1Count = 0;
         for (Map.Entry<String, ArrayList<ArrayList<String>>> entry1 : data.entrySet()) {     // Traverse every file in the map
-            int set2Count = 0;
-            for (Map.Entry<String, ArrayList<ArrayList<String>>> entry2 : data.entrySet()) { // Compare against every other file
-                set2Count++;
-                if (set2Count > set1Count) continue;
-                int count = 0;
-                for (int i = 0; i < entry1.getValue().size(); i++) {                         // Traverse the number of phrases
-                    for (int j = 0; j < entry2.getValue().size(); j++) {                     // Compare against the phrases in the other file
-                        if (entry1.getValue().get(i).equals(entry2.getValue().get(j)))
-                            count++;
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    int set2Count = 0;
+                    for (Map.Entry<String, ArrayList<ArrayList<String>>> entry2 : data.entrySet()) { // Compare against every other file
+                        set2Count++;
+                        if (set2Count > set1Count) continue;
+                        int count = 0;
+                        for (int i = 0; i < entry1.getValue().size(); i++) {                         // Traverse the number of phrases
+                            for (int j = 0; j < entry2.getValue().size(); j++) {                     // Compare against the phrases in the other file
+                                if (entry1.getValue().get(i).equals(entry2.getValue().get(j)))
+                                    count++;
+                            }
+                        }
+                        if (count >= minMatches)
+                            similarities.put(entry1.getKey() + ", " + entry2.getKey(), count);
                     }
+                    set1Count++;
                 }
-                similarities.put(entry1.getKey() + ", " + entry2.getKey(), count);
-            }
-            set1Count++;
+            });
+            t.start();
         }
         return similarities;
     }
@@ -170,9 +166,7 @@ public class Main {
         TreeMap<Integer, String> sorted = new TreeMap<>(Collections.reverseOrder());
         sorted.putAll(flipped);
         for (Map.Entry<Integer, String> entry : sorted.entrySet()) {
-            if (entry.getKey() >= minMatches) {
-                System.out.println(entry.getKey() + ": " + entry.getValue());
-            }
+            System.out.println(entry.getKey() + ": " + entry.getValue());
         }
     }
 
