@@ -1,6 +1,7 @@
 import java.io.*;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Main {
     private static Scanner kb;	// scanner connected to keyboard input, or input file
@@ -111,8 +112,18 @@ public class Main {
      * @param data is the hashmap with the data of all the phrases in each file
      * @return a new hashmap with the number of similarities between the different files
      */
-    private static HashMap<String, Integer> getSimilarities(HashMap<String, ArrayList<ArrayList<String>>> data) {
-        HashMap<String, Integer> similarities = new HashMap<>();
+    private static ConcurrentHashMap<String, Integer> getSimilarities(HashMap<String, ArrayList<ArrayList<String>>> data) {
+        ConcurrentHashMap<String, Integer> similarities = new ConcurrentHashMap<>();
+        Thread[] threads = new Thread[data.size()];
+        for (int i = 0; i < threads.length; i++) {
+            Thread t = new Thread() {
+                public void run() {
+
+                }
+            };
+            threads[i] = t;
+            t.start();
+        }
 //        Set<String> keys = data.keySet();
 //        String[] keyArr = keys.toArray(new String[keys.size()]);
 //        for (int i = 0; i < keyArr.length; i++) {
@@ -151,7 +162,7 @@ public class Main {
      * This method prints the similarities
      * @param similarities is the hashmap with the similarities between each pair of files
      */
-    private static void displaySimilarities(HashMap<String, Integer> similarities) {
+    private static void displaySimilarities(ConcurrentHashMap<String, Integer> similarities) {
         HashMap<Integer, String> flipped = new HashMap<>(similarities.size());
         for (Map.Entry<String, Integer> entry : similarities.entrySet()) {
             flipped.put(entry.getValue(), entry.getKey());
