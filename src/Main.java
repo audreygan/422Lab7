@@ -3,18 +3,17 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class Main {
-    static Scanner kb;	// scanner connected to keyboard input, or input file
-    public static int minMatches;
+    private static Scanner kb;	// scanner connected to keyboard input, or input file
+    private static int minMatches;
 
     public static void main(String[] args) {
-        kb = new Scanner(System.in); // use keyboard and console
-        ArrayList<String> input;                         //array list that holds the input command
+        kb = new Scanner(System.in);                                                    // use keyboard and console
+        ArrayList<String> input;                                                        //array list that holds the input command
         input = parse(kb);
-        while(input.size() != 0) {//keep running if "quit" command not entered
-            if(input.size() == 1){} //if exception was encountered then keep running, not a "quit"
-            else{
+        while (input.size() != 0) {                                                     //keep running if "quit" command not entered
+            if (input.size() != 1) {                                                    //if exception was encountered then keep running, not a "quit"
                 String rightFilePath = input.get(input.size()-3);
-                if(!input.get(input.size()-3).endsWith("/")){   //account for if file path doesn't end with a "/"
+                if (!input.get(input.size()-3).endsWith("/")) {                         //account for if file path doesn't end with a "/"
                     input.remove(input.size()-3);
                     rightFilePath += "/";
                     input.add(input.size()-2, rightFilePath);
@@ -24,24 +23,24 @@ public class Main {
                 HashMap<String, ArrayList<ArrayList<String>>> hm = new HashMap<>();
                 for(int i = 0; i<input.size()-3; i++) {//goes until the last file
                     ArrayList<ArrayList<String>> phrases = new ArrayList<>();
-                    File thisFile = new File(rightFilePath + input.get(i));   //the actual test doc to compare against all others
+                    File thisFile = new File(rightFilePath + input.get(i));    //the actual test doc to compare against all others
 //                    String line1;
 //                    System.out.println(input.get(i)); //*********DEBUG STATEMENT making sure all files are being accessed*********
                     try {
                         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(thisFile), "UTF-8"));
-                        Scanner s = new Scanner(br);    //make a scanner that uses the buffered reader to read the file
+                        Scanner s = new Scanner(br);                    //make a scanner that uses the buffered reader to read the file
                         while (s.hasNext()) {
                             int numWords = 0;
                             ArrayList<String> stringEntry = new ArrayList<>();
                             while((numWords < phraseLen) && (s.hasNext()) && (phrases.size() == 0)){
-                                stringEntry.add(s.next().replaceAll("[^\\w\\s\\ ]", "").toLowerCase()); //get the first phrase in the doc
+                                stringEntry.add(s.next().replaceAll("[^\\w\\s\\ ]", "").toLowerCase());     //get the first phrase in the doc
                                 numWords++;
                             }
                             if((phrases.size()>0) && (s.hasNext())){
-                                ArrayList<String> newPhrase = new ArrayList<>(phrases.get(phrases.size()-1));     //for all other phrases, get the last phrase
-                                newPhrase.remove(0);                                                        //remove the first word
-                                newPhrase.add(s.next().replaceAll("[^\\w\\s\\ ]", "").toLowerCase());//add the next word
-                                phrases.add(newPhrase);                                                             //add the phrase to the 2d string array
+                                ArrayList<String> newPhrase = new ArrayList<>(phrases.get(phrases.size()-1));               //for all other phrases, get the last phrase
+                                newPhrase.remove(0);                                                                   //remove the first word
+                                newPhrase.add(s.next().replaceAll("[^\\w\\s\\ ]", "").toLowerCase());       //add the next word
+                                phrases.add(newPhrase);                                                                     //add the phrase to the 2d string array
                             }else {
                                 phrases.add(stringEntry);   //add first phrase to the string array
                             }
@@ -54,7 +53,7 @@ public class Main {
                     }
 
                 }
-                displaySimilarities(getSimilarities(hm));
+                displaySimilarities(getSimilarities(hm));       // Display the number of similarities after the comparison is completed
             }
             input = parse(kb);  //run the program until quit is entered
         }
@@ -114,16 +113,17 @@ public class Main {
      */
     private static HashMap<String, Integer> getSimilarities(HashMap<String, ArrayList<ArrayList<String>>> data) {
         HashMap<String, Integer> similarities = new HashMap<>();
+        int set1Count = 0;
         for (Map.Entry<String, ArrayList<ArrayList<String>>> entry1 : data.entrySet()) {     // Traverse every file in the map
-            int entryHash1 = System.identityHashCode(entry1.getKey());
+            int set2Count = 0;
             for (Map.Entry<String, ArrayList<ArrayList<String>>> entry2 : data.entrySet()) { // Compare against every other file
-                int entryHash2 = System.identityHashCode(entry2.getKey());
-                if (entryHash2 > entryHash1) continue;
+                set2Count++;
+                if (set2Count > set1Count) continue;
                 int count = 0;
                 for (int i = 0; i < entry1.getValue().size(); i++) {                         // Traverse the number of phrases
                     for (int j = 0; j < entry2.getValue().size(); j++) {                     // Compare against the phrases in the other file
                         boolean equal = true;
-                        for (int k = 0; k < entry1.getValue().get(i).size(); k++) {          // Compare the words -- I'm not sure if this is necessary but just to be safe I'm comparing each word
+                        for (int k = 0; k < entry1.getValue().get(i).size(); k++) {          // Compare the words
                             if (!entry1.getValue().get(i).get(k).equals(entry2.getValue().get(j).get(k)))
                                 equal = false;
                         }
@@ -133,6 +133,7 @@ public class Main {
                 }
                 similarities.put(entry1.getKey() + ", " + entry2.getKey(), count);
             }
+            set1Count++;
         }
         return similarities;
     }
@@ -142,12 +143,16 @@ public class Main {
      * @param similarities is the hashmap with the similarities between each pair of files
      */
     private static void displaySimilarities(HashMap<String, Integer> similarities) {
-        // Sort in reverse order (highest value to lowest value)
-        // for each entry
-        //      if the current value is greater than the minimum required
-        //          make a new line and print the value then the key
-        for (Map.Entry<String, Integer> entry1 : similarities.entrySet()) {
-            
+        HashMap<Integer, String> flipped = new HashMap<>(similarities.size());
+        for (Map.Entry<String, Integer> entry : similarities.entrySet()) {
+            flipped.put(entry.getValue(), entry.getKey());
+        }
+        TreeMap<Integer, String> sorted = new TreeMap<>(Collections.reverseOrder());
+        sorted.putAll(flipped);
+        for (Map.Entry<Integer, String> entry : sorted.entrySet()) {
+            if (entry.getKey() >= minMatches) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
         }
     }
 
