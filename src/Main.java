@@ -122,12 +122,7 @@ public class Main {
                 int count = 0;
                 for (int i = 0; i < entry1.getValue().size(); i++) {                         // Traverse the number of phrases
                     for (int j = 0; j < entry2.getValue().size(); j++) {                     // Compare against the phrases in the other file
-                        boolean equal = true;
-                        for (int k = 0; k < entry1.getValue().get(i).size(); k++) {          // Compare the words
-                            if (!entry1.getValue().get(i).get(k).equals(entry2.getValue().get(j).get(k)))
-                                equal = false;
-                        }
-                        if (equal)
+                        if (entry1.getValue().get(i).equals(entry2.getValue().get(j)))
                             count++;
                     }
                 }
