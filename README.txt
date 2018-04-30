@@ -1,0 +1,3 @@
+Our program traverses the text files in a folder specified by the user and identifies the number of phrases between two different files that are the same. It then outputs the number of phrases that match between files and the two files that share the similar phrase.
+
+Our program takes in a folder full of text files, a number for the amount of words in a phrase, and a number for the minimum amount of phrases that constitute cheating as input. It outputs a list of the pairs of files that have matching phrases above the minimum amount specified by the user to the console. By utilizing hashmaps and comparators, we are able to accommodate a large amount of files in a very short time.
