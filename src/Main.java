@@ -1,12 +1,21 @@
 import java.io.*;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Main {
+public class Main{
     private static Scanner kb;	// scanner connected to keyboard input, or input file
     private static int minMatches;
-    private static int set1Count = 0;
+
+    private static class FilePair implements Comparable<FilePair>{
+        String file1;
+        String file2;
+        int numMatches;
+        @Override
+        public int compareTo(FilePair thatPair){
+            return ((Integer)this.numMatches).compareTo((Integer)thatPair.numMatches);
+        }
+    }
+
     public static void main(String[] args) {
         kb = new Scanner(System.in);                                                    // use keyboard and console
         ArrayList<String> input;                                                        //array list that holds the input command
@@ -21,31 +30,52 @@ public class Main {
                 }
                 int phraseLen = Integer.valueOf(input.get(input.size()-2));
                 minMatches = Integer.valueOf(input.get(input.size()-1));
-                HashMap<String, ArrayList<ArrayList<String>>> hm = new HashMap<>();
+                HashMap<String, ArrayList<String>> phraseMap = new HashMap<>();   //key is the phrase(String) and the value is the array list of filenames that contain that phrase
+//                HashMap<String, ArrayList<ArrayList<String>>> hm = new HashMap<>();
                 for(int i = 0; i<input.size()-3; i++) {//goes until the last file
                     ArrayList<ArrayList<String>> phrases = new ArrayList<>();
                     File thisFile = new File(rightFilePath + input.get(i));    //the actual test doc to compare against all others
-//                    String line1;
 //                    System.out.println(input.get(i)); //*********DEBUG STATEMENT making sure all files are being accessed*********
                     try {
                         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(thisFile), "UTF-8"));
                         Scanner s = new Scanner(br);                    //make a scanner that uses the buffered reader to read the file
                         while (s.hasNext()) {
                             int numWords = 0;
-                            ArrayList<String> stringEntry = new ArrayList<>();
-                            while((numWords < phraseLen) && (s.hasNext()) && (phrases.size() == 0)){
-                                stringEntry.add(s.next().replaceAll("[^\\w\\s\\ ]", "").toLowerCase());     //get the first phrase in the doc
-                                numWords++;
-                            }
-                            if((phrases.size()>0) && (s.hasNext())){
-                                ArrayList<String> newPhrase = new ArrayList<>(phrases.get(phrases.size()-1));               //for all other phrases, get the last phrase
+                            ArrayList<String> stringEntry = new ArrayList<>(); String firstPhrase = new String();
+                            if((phrases.size() == 0)){
+                                while((numWords < phraseLen) && (s.hasNext())){
+                                    stringEntry.add(s.next().replaceAll("[^\\w\\s\\ ]", "").toLowerCase());     //get the first phrase in the doc
+                                    numWords++;
+                                }
+                                phrases.add(stringEntry);   //add first phrase to the string array
+                                for(int j = 0; j<stringEntry.size(); j++){  //turn the string entry array into a string
+                                    firstPhrase += stringEntry.get(j);
+                                }
+                                if(phraseMap.containsKey(firstPhrase)){   //if the phrase already exists in the hashmap, append file to list
+                                    phraseMap.get(firstPhrase).add(input.get(i));
+                                }else{
+                                    ArrayList<String> newFileList = new ArrayList<>();  //otherwise, add the new phrase and create a new file list for that phrase
+                                    newFileList.add(input.get(i));
+                                    phraseMap.put(firstPhrase,newFileList);
+                                }
+                            }else if((phrases.size()>0) && (s.hasNext())) {
+                                String thisPhrase = new String();
+                                ArrayList<String> newPhrase = new ArrayList<>(phrases.get(phrases.size() - 1));               //for all other phrases, get the last phrase
                                 newPhrase.remove(0);                                                                   //remove the first word
                                 newPhrase.add(s.next().replaceAll("[^\\w\\s\\ ]", "").toLowerCase());       //add the next word
-                                phrases.add(newPhrase);                                                                     //add the phrase to the 2d string array
-                            }else {
-                                phrases.add(stringEntry);   //add first phrase to the string array
+                                phrases.add(newPhrase);
+                                for(int j = 0; j<newPhrase.size(); j++){  //turn the string entry array into a string
+                                    thisPhrase += newPhrase.get(j);
+                                }
+                                if(phraseMap.containsKey(thisPhrase)){   //if the phrase already exists in the hashmap, append file to list
+                                    phraseMap.get(thisPhrase).add(input.get(i));
+                                }else{
+                                    ArrayList<String> newFileList = new ArrayList<>();  //otherwise, add the new phrase and create a new file list for that phrase
+                                    newFileList.add(input.get(i));
+                                    phraseMap.put(thisPhrase,newFileList);
+                                }
                             }
-                            hm.put(input.get(i), phrases);  //add string arrays to hash map
+//                            hm.put(input.get(i), phrases);  //add string arrays to hash map
                         }
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -53,22 +83,28 @@ public class Main {
                         e.printStackTrace();
                     }
 
+                }   //finished creating hashmap with phrases and the list of files that the phrases appear in
+                //make a hash map that finds how many matches there are between file pairs
+                HashMap<String, FilePair> matchesMap = new HashMap<>();
+                for(Map.Entry<String, ArrayList<String>> entry : phraseMap.entrySet()){ //go through the entries in the first hash map
+                    for(int n=0; n< entry.getValue().size(); n++){  //go through the file name array lists for each phrase
+                        for(int m=n+1; m<entry.getValue().size(); m++){
+                            if(!entry.getValue().get(n).equals(entry.getValue().get(m))) {
+                                String pairString = entry.getValue().get(n) + ", " + entry.getValue().get(m);
+                                if (matchesMap.containsKey(pairString)) { //if the file pair string name is already a key, increment the number of matches
+                                    matchesMap.get(pairString).numMatches += 1;
+                                } else {                                          //otherwise it's a new pair so add this new file pair to the hash map
+                                    FilePair newPair = new FilePair();
+                                    newPair.file1 = entry.getValue().get(n);
+                                    newPair.file2 = entry.getValue().get(m);
+                                    newPair.numMatches = 1;
+                                    matchesMap.put(pairString, newPair);
+                                }
+                            }
+                        }
+                    }
                 }
-//                ConcurrentHashMap<String, Integer> simMap = new ConcurrentHashMap<>();
-//                final Object lock = new Object();
-//                ArrayList<Thread> threads = new ArrayList<>();
-//                for (int i = 0; i < threads.size(); i++) {
-//                    Thread t = new Thread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                                 simMap = getSimilarities(hm);  // Display the number of similarities after the comparison is completed
-//
-//                        }
-//                    });
-//                    threads.add(t);
-//                    t.start();
-//                }
-                displaySimilarities(getSimilarities(hm));       // Display the number of similarities after the comparison is completed
+                displaySimilarities(matchesMap);
             }
             input = parse(kb);  //run the program until quit is entered
         }
@@ -120,7 +156,6 @@ public class Main {
         }
         return input;
     }
-
     /**
      * This method compares the data within the given hashmap and returns a new hashmap with the similarities between files
      * @param data is the hashmap with the data of all the phrases in each file
@@ -128,45 +163,38 @@ public class Main {
      */
     private static ConcurrentHashMap<String, Integer> getSimilarities(HashMap<String, ArrayList<ArrayList<String>>> data) {
         ConcurrentHashMap<String, Integer> similarities = new ConcurrentHashMap<>();
+        int set1Count = 0;
         for (Map.Entry<String, ArrayList<ArrayList<String>>> entry1 : data.entrySet()) {     // Traverse every file in the map
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    int set2Count = 0;
-                    for (Map.Entry<String, ArrayList<ArrayList<String>>> entry2 : data.entrySet()) { // Compare against every other file
-                        set2Count++;
-                        if (set2Count > set1Count) continue;
-                        int count = 0;
-                        for (int i = 0; i < entry1.getValue().size(); i++) {                         // Traverse the number of phrases
-                            for (int j = 0; j < entry2.getValue().size(); j++) {                     // Compare against the phrases in the other file
-                                if (entry1.getValue().get(i).equals(entry2.getValue().get(j)))
-                                    count++;
-                            }
-                        }
-                        if (count >= minMatches)
-                            similarities.put(entry1.getKey() + ", " + entry2.getKey(), count);
+            int set2Count = 0;
+            for (Map.Entry<String, ArrayList<ArrayList<String>>> entry2 : data.entrySet()) { // Compare against every other file
+                set2Count++;
+                if (set2Count > set1Count) continue;
+                int count = 0;
+                for (int i = 0; i < entry1.getValue().size(); i++) {                         // Traverse the number of phrases
+                    for (int j = 0; j < entry2.getValue().size(); j++) {                     // Compare against the phrases in the other file
+                        if (entry1.getValue().get(i).equals(entry2.getValue().get(j)))
+                            count++;
                     }
-                    set1Count++;
                 }
-            });
-            t.start();
+                similarities.put(entry1.getKey() + ", " + entry2.getKey(), count);
+            }
+            set1Count++;
         }
         return similarities;
     }
 
     /**
      * This method prints the similarities
-     * @param similarities is the hashmap with the similarities between each pair of files
+     * @param matchesMap is the hashmap with the similarities between each pair of files
      */
-    private static void displaySimilarities(ConcurrentHashMap<String, Integer> similarities) {
-        HashMap<Integer, String> flipped = new HashMap<>(similarities.size());
-        for (Map.Entry<String, Integer> entry : similarities.entrySet()) {
-            flipped.put(entry.getValue(), entry.getKey());
-        }
-        TreeMap<Integer, String> sorted = new TreeMap<>(Collections.reverseOrder());
-        sorted.putAll(flipped);
-        for (Map.Entry<Integer, String> entry : sorted.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
+    private static void displaySimilarities(HashMap<String, FilePair> matchesMap) {
+        ArrayList<FilePair> sortedPairs = new ArrayList<FilePair>(matchesMap.values());
+        Collections.sort(sortedPairs);
+        Collections.reverse(sortedPairs);
+        for(int k = 0; k<sortedPairs.size(); k++){
+            if(sortedPairs.get(k).numMatches >= minMatches){
+                System.out.println(sortedPairs.get(k).numMatches + ": " + sortedPairs.get(k).file1 + ", " + sortedPairs.get(k).file2);
+            }
         }
     }
 
