@@ -1,8 +1,13 @@
+/*
+ * Project 7
+ * Zack Campbell and Audrey Gan
+ * zcc254
+ * ayg333
+ */
 package assignment7;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Main{
     private static int minMatches;
